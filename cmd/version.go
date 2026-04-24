@@ -3,6 +3,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/Moorad/workforest/internal/fzf"
+	"github.com/Moorad/workforest/internal/git"
+	"github.com/Moorad/workforest/internal/tmux"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -12,22 +16,28 @@ var (
 	DATE    string
 )
 
-// versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Show version of workforest and its dependencies",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Version: %s (%s - %s)", VERSION, COMMIT, DATE)
-		fmt.Println()
+		fmt.Printf("Version: %s (%s - %s)\n", VERSION, COMMIT, DATE)
+
+		isGitInstalled, gitVersion := git.Health()
+		isFzfInstalled, fzfVersion := fzf.Health()
+		isTmuxInstalled, tmuxVersion := tmux.Health()
+
+		fmt.Printf("\nDependencies:\n\tgit: %s\n\tfzf: %s\n\ttmux: %s\n", formatInstallationMsg(isGitInstalled, gitVersion), formatInstallationMsg(isFzfInstalled, fzfVersion), formatInstallationMsg(isTmuxInstalled, tmuxVersion))
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+}
+
+func formatInstallationMsg(isInstalled bool, version string) string {
+	if isInstalled {
+		return fmt.Sprintf("%s (%s)", color.GreenString("Installed"), version)
+	}
+
+	return color.RedString("Missing")
 }

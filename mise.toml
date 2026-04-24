@@ -6,7 +6,7 @@ description = "Build and run dev version of workforest"
 run = '''
 COMMIT=$(git rev-parse --short HEAD)
 DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-go run -ldflags=\"-X github.com/Moorad/workforest/cmd.VERSION=dev -X github.com/Moorad/workforest/cmd.COMMIT=$COMMIT -X github.com/Moorad/workforest/cmd.DATE=$DATE\" main.go
+go run -ldflags="-X github.com/Moorad/workforest/cmd.VERSION=dev -X github.com/Moorad/workforest/cmd.COMMIT=$COMMIT -X github.com/Moorad/workforest/cmd.DATE=$DATE" main.go
 '''
 
 [tasks.build]
