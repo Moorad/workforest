@@ -1,17 +1,16 @@
 package fzf
 
 import (
-	"os/exec"
 	"strings"
+
+	"github.com/Moorad/workforest/internal/exec"
 )
 
 func Health() (bool, string) {
-	cmd := exec.Command("fzf", "--version")
-
-	out, err := cmd.Output()
+	out, err := exec.CmdOutput("fzf", "--version")
 	if err != nil {
 		return false, ""
 	}
 
-	return true, strings.Split(string(out), " ")[0]
+	return true, strings.Split(out, " ")[0]
 }
