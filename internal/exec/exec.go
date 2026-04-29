@@ -10,25 +10,44 @@ import (
 	"github.com/fatih/color"
 )
 
-func CmdOutput(args ...string) (string, error) {
+type Command struct {
+	args   []string
+	Cmd    *exec.Cmd
+	stdout *bytes.Buffer
+	stderr *bytes.Buffer
+}
+
+func NewCommand(args ...string) *Command {
+	var stdout, stderr bytes.Buffer
+	Cmd := exec.Command(args[0], args[1:]...)
+
+	Cmd.Stdout = &stdout
+	Cmd.Stderr = &stderr
+
+	return &Command{
+		args,
+		Cmd,
+		&stdout,
+		&stderr,
+	}
+}
+
+func (c *Command) Output() (string, error) {
 	gray := color.RGB(170, 170, 170)
 
-	_, err := gray.Printf("$ %s\n", strings.Join(args, " "))
+	_, err := gray.Printf("$ %s\n", strings.Join(c.args, " "))
 	if err != nil {
 		return "", err
 	}
-	var stdout, stderr bytes.Buffer
-	cmd := exec.Command(args[0], args[1:]...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	err = cmd.Run()
+
+	err = c.Cmd.Run()
 	if err != nil {
-		errStr := stderr.String()
+		errStr := c.stderr.String()
 		color.Red("> %s", errStr)
 		return errStr, err
 	}
 
-	outStr := stdout.String()
+	outStr := c.stdout.String()
 	if outStr != "" {
 		color.Green("> %s", outStr)
 	}
@@ -36,8 +55,8 @@ func CmdOutput(args ...string) (string, error) {
 	return outStr, nil
 }
 
-func Cmd(args ...string) error {
-	_, err := CmdOutput(args...)
+func (c *Command) Run() error {
+	_, err := c.Output()
 
 	return err
 }

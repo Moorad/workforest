@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/Moorad/workforest/internal/fzf"
 	"github.com/Moorad/workforest/internal/git"
 	"github.com/Moorad/workforest/internal/tmux"
 	"github.com/fatih/color"
@@ -23,10 +22,9 @@ var versionCmd = &cobra.Command{
 		fmt.Printf("Version: %s (%s - %s)\n", VERSION, COMMIT, DATE)
 
 		isGitInstalled, gitVersion := git.Health()
-		isFzfInstalled, fzfVersion := fzf.Health()
 		isTmuxInstalled, tmuxVersion := tmux.Health()
 
-		fmt.Printf("\nDependencies:\n\tgit: %s\n\tfzf: %s\n\ttmux: %s\n", formatInstallationMsg(isGitInstalled, gitVersion), formatInstallationMsg(isFzfInstalled, fzfVersion), formatInstallationMsg(isTmuxInstalled, tmuxVersion))
+		fmt.Printf("\nDependencies:\n\tgit: %s\n\tfzf: %s\n\ttmux: %s\n", formatInstallationMsg(isGitInstalled, gitVersion), formatInstallationMsg(isTmuxInstalled, tmuxVersion))
 	},
 }
 

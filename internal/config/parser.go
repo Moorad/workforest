@@ -38,49 +38,49 @@ func Parse(cfgPath string) Config {
 	return cfg
 }
 
-func ResolveConfigPath(cfgPath string) (string, error) {
-	if cfgPath != "" {
-		exists, err := checkConfigExists(cfgPath)
-		if err != nil {
-			return "", fmt.Errorf("failed to check file existance")
-		}
-		if !exists {
-			return "", fmt.Errorf("specified file does not exist %e", err)
-		}
+// func ResolveConfigPath(configPath string, isDefault bool) (string, error) {
+// 	if configPath != "" {
+// 		exists, err := checkConfigExists(configPath)
+// 		if err != nil {
+// 			return "", fmt.Errorf("failed to check file existance")
+// 		}
+// 		if !exists {
+// 			return "", fmt.Errorf("specified file does not exist %e", err)
+// 		}
+//
+// 		return cfgPath, nil
+// 	}
+//
+// 	cwd, err := os.Getwd()
+// 	if err != nil {
+// 		return "", fmt.Errorf("failed to get current working directory %e", err)
+// 	}
+// 	cwdCfgPath :=
+//
+// 	exists, err := checkConfigExists(cwdCfgPath)
+// 	if err != nil {
+// 		return "", fmt.Errorf("failed to check file existance")
+// 	}
+//
+// 	if exists {
+// 		return cwdCfgPath, nil
+// 	}
+//
+// 	parentCfgPath := filepath.Join(filepath.Dir(cwd), "/.workforest.yml")
+//
+// 	exists, err = checkConfigExists(parentCfgPath)
+// 	if err != nil {
+// 		return "", fmt.Errorf("failed to check file existance")
+// 	}
+//
+// 	if exists {
+// 		return parentCfgPath, nil
+// 	}
+//
+// 	return "", nil
+// }
 
-		return cfgPath, nil
-	}
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("failed to get current working directory %e", err)
-	}
-	cwdCfgPath := filepath.Join(cwd, "/.workforest.yml")
-
-	exists, err := checkConfigExists(cwdCfgPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to check file existance")
-	}
-
-	if exists {
-		return cwdCfgPath, nil
-	}
-
-	parentCfgPath := filepath.Join(filepath.Dir(cwd), "/.workforest.yml")
-
-	exists, err = checkConfigExists(parentCfgPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to check file existance")
-	}
-
-	if exists {
-		return parentCfgPath, nil
-	}
-
-	return "", nil
-}
-
-func checkConfigExists(path string) (bool, error) {
+func CheckConfigExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 
 	if err == nil {
