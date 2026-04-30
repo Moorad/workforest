@@ -3,7 +3,6 @@ package tui
 import (
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"charm.land/bubbles/v2/list"
@@ -141,7 +140,7 @@ func (m model) View() tea.View {
 	return v
 }
 
-func PromptList(prompt string, options []Item) Item {
+func PromptList(prompt string, options []Item) (Item, error) {
 	items := []list.Item{}
 	for _, opt := range options {
 		items = append(items, Item(opt))
@@ -151,9 +150,8 @@ func PromptList(prompt string, options []Item) Item {
 
 	result, err := tea.NewProgram(m).Run()
 	if err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
+		return Item{}, err
 	}
 
-	return result.(model).choice
+	return result.(model).choice, nil
 }

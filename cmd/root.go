@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -9,8 +8,8 @@ import (
 	"github.com/Moorad/workforest/internal/git"
 	"github.com/Moorad/workforest/internal/tmux"
 	"github.com/Moorad/workforest/internal/tui"
+	"github.com/Moorad/workforest/internal/utils"
 	"github.com/Moorad/workforest/internal/worktrees"
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -24,31 +23,41 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			path, err := config.GetPath(args)
 			if err != nil {
-				panic("Failed to resolve passed path or current path")
+				utils.Panic("Failed to resolve config path", err)
 			}
-			wts, err := git.GetWorktrees(path)
 
-			isWorktreePicked := false
+			wts, err := git.GetWorktrees(path)
+			if err != nil {
+				utils.Panic("Failed to get worktrees", err)
+			}
+
+			utils.Debug("wt", wts)
+
 			var workingPath string
 			var configPath string
+			isWorktreePicked := false
+
 			if len(wts) > 1 {
-				choice := tui.PromptList("Pick a worktree to switch to", worktrees.ItemizeWorktrees(wts))
+				choice, err := tui.PromptList("Pick a worktree to switch to", worktrees.ItemizeWorktrees(wts))
+				if err != nil {
+					utils.Panic("An error occured while prompting list", err)
+				}
 
 				if choice == (tui.Item{}) {
-					fmt.Println("No worktree picked, exiting")
-					os.Exit(0)
+					utils.GracefullyExit("No worktree picked")
 				}
+
 				workingPath = choice.Value
 				isWorktreePicked = true
 			} else {
 				defaultPath, err := config.GetDefaultConfigPath()
 				if err != nil {
-					panic(err)
+					utils.Panic("Failed to resolve default config path", err)
 				}
 				workingPath = defaultPath
 			}
 
-			println("working path:", workingPath)
+			utils.Debug("Working path: %s", workingPath)
 
 			if cfgPath != "" {
 				configPath = cfgPath
@@ -62,14 +71,15 @@ var (
 				configPath = filepath.Join(configPath, "/.workforest.yml")
 			}
 
+			utils.Debug("Config path: %s", configPath)
+
 			configExists, err := config.CheckConfigExists(configPath)
 			if err != nil {
-				panic(err)
+				utils.Panic("Failed to check config existence", err)
 			}
 
 			if !configExists {
-				color.Red("No config file was found for the following directory: %s", configPath)
-				os.Exit(1)
+				utils.PanicMsg("No config file was found for the following directory: %s", configPath)
 			}
 
 			// 		if resolvedCfgPath == "" {
@@ -89,9 +99,10 @@ var (
 			// 			}
 			//
 
-			cfg := config.Parse(configPath)
-
-			fmt.Println(workingPath)
+			cfg, err := config.Parse(configPath)
+			if err != nil {
+				utils.Panic("Failed to parse config file", err)
+			}
 
 			sessionName := cfg.Name
 
@@ -99,14 +110,18 @@ var (
 				sessionName += "_" + filepath.Base(workingPath)
 			}
 
+			utils.Debug("Session name: %s", sessionName)
+
 			if tmux.DoesSessionExist(sessionName) {
-				tmux.DirectSwitchOrAttach(sessionName)
+				err := tmux.DirectSwitchOrAttach(sessionName)
+				if err != nil {
+					utils.Panic("Failed to direct switch/attach to tmux session", err)
+				}
 			}
 
 			session, err := tmux.NewSession(sessionName, workingPath)
 			if err != nil {
-				fmt.Println(err)
-				panic(fmt.Errorf("failed to create session: %e", err))
+				utils.Panic("Failed to create tmux session", err)
 			}
 
 			for i, window := range cfg.Windows {
@@ -118,13 +133,13 @@ var (
 				}
 
 				if err != nil {
-					panic("Failed to create/rename new window")
+					utils.Panic("Failed to create/rename new tmux window", err)
 				}
 
 				if window.Command != "" {
 					err := session.SendKeys(window.Name, window.Command, "Enter")
 					if err != nil {
-						panic("Failed to send keys to window")
+						utils.Panic("Failed to send keys to tmux window", err)
 					}
 				}
 
@@ -132,7 +147,7 @@ var (
 
 			err = session.SwitchOrAttach()
 			if err != nil {
-				panic("Failed to attach")
+				utils.Panic("Failed to switch/attack to tmux session", err)
 			}
 		},
 	}

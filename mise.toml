@@ -2,6 +2,7 @@
 go = "1.26.2"
 
 [tasks.dev]
+env = { "DEBUG" = 1 }
 description = "Build and run dev version of workforest"
 run = '''
 COMMIT=$(git rev-parse --short HEAD)

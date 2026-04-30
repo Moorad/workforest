@@ -7,6 +7,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/Moorad/workforest/internal/utils"
 	"github.com/fatih/color"
 )
 
@@ -33,23 +34,18 @@ func NewCommand(args ...string) *Command {
 }
 
 func (c *Command) Output() (string, error) {
-	gray := color.RGB(170, 170, 170)
+	utils.Debug("$ %s\n", strings.Join(c.args, " "))
 
-	_, err := gray.Printf("$ %s\n", strings.Join(c.args, " "))
-	if err != nil {
-		return "", err
-	}
-
-	err = c.Cmd.Run()
+	err := c.Cmd.Run()
 	if err != nil {
 		errStr := c.stderr.String()
-		color.Red("> %s", errStr)
+		utils.DebugError("> %s", errStr)
 		return errStr, err
 	}
 
 	outStr := c.stdout.String()
 	if outStr != "" {
-		color.Green("> %s", outStr)
+		utils.DebugSuccess("> %s", outStr)
 	}
 
 	return outStr, nil
@@ -64,7 +60,7 @@ func (c *Command) Run() error {
 func SysCall(args ...string) error {
 	gray := color.RGB(170, 170, 170)
 
-	_, err := gray.Printf("$ %s\n", strings.Join(args, " "))
+	_, err := gray.Printf("$ %s", strings.Join(args, " "))
 	if err != nil {
 		return err
 	}

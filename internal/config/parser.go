@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -19,66 +18,24 @@ type Config struct {
 	Windows []Window
 }
 
-func Parse(cfgPath string) Config {
+func Parse(cfgPath string) (Config, error) {
 	yml, err := os.ReadFile(cfgPath)
 	if err != nil {
-		fmt.Printf("Failed to read %v. Check if the file exists and has read permissions.", cfgPath)
+		return Config{}, err
 	}
 
 	var cfg Config
 
 	if err := yaml.Unmarshal([]byte(yml), &cfg); err != nil {
-		fmt.Printf("Failed while parsing %s. Make sure that the file is properly formatted %v", cfgPath, err)
+		return Config{}, err
 	}
 
 	if cfg.Name == "" {
 		cfg.Name = filepath.Base(filepath.Dir(cfgPath))
 	}
 
-	return cfg
+	return cfg, nil
 }
-
-// func ResolveConfigPath(configPath string, isDefault bool) (string, error) {
-// 	if configPath != "" {
-// 		exists, err := checkConfigExists(configPath)
-// 		if err != nil {
-// 			return "", fmt.Errorf("failed to check file existance")
-// 		}
-// 		if !exists {
-// 			return "", fmt.Errorf("specified file does not exist %e", err)
-// 		}
-//
-// 		return cfgPath, nil
-// 	}
-//
-// 	cwd, err := os.Getwd()
-// 	if err != nil {
-// 		return "", fmt.Errorf("failed to get current working directory %e", err)
-// 	}
-// 	cwdCfgPath :=
-//
-// 	exists, err := checkConfigExists(cwdCfgPath)
-// 	if err != nil {
-// 		return "", fmt.Errorf("failed to check file existance")
-// 	}
-//
-// 	if exists {
-// 		return cwdCfgPath, nil
-// 	}
-//
-// 	parentCfgPath := filepath.Join(filepath.Dir(cwd), "/.workforest.yml")
-//
-// 	exists, err = checkConfigExists(parentCfgPath)
-// 	if err != nil {
-// 		return "", fmt.Errorf("failed to check file existance")
-// 	}
-//
-// 	if exists {
-// 		return parentCfgPath, nil
-// 	}
-//
-// 	return "", nil
-// }
 
 func CheckConfigExists(path string) (bool, error) {
 	_, err := os.Stat(path)

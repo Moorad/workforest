@@ -32,6 +32,11 @@ func GetWorktrees(path string) ([]worktrees.Worktree, error) {
 
 	for _, worktreeStr := range splitOut {
 		splitText := strings.Split(strings.Trim(worktreeStr, "\n"), "\n")
+
+		if splitText[1] == "bare" {
+			continue
+		}
+
 		path := strings.Split(splitText[0], " ")[1]
 		wts = append(wts, worktrees.NewWorktree(path))
 	}
