@@ -26,7 +26,7 @@ func newStyles() styles {
 	s.title = lipgloss.NewStyle().MarginLeft(2)
 	s.item = lipgloss.NewStyle().PaddingLeft(4)
 	s.item.Align(lipgloss.Center)
-	s.selectedItem = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
+	s.selectedItem = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Green)
 	s.pagination = list.DefaultStyles(true).PaginationStyle.PaddingLeft(4)
 	s.help = list.DefaultStyles(true).HelpStyle.PaddingLeft(4).PaddingBottom(1)
 	s.quitText = lipgloss.NewStyle().Margin(1, 0, 2, 4)
