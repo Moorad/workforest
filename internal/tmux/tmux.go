@@ -2,6 +2,7 @@ package tmux
 
 import (
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Moorad/workforest/internal/exec"
@@ -87,4 +88,36 @@ func DirectSwitchOrAttach(name string) error {
 	}
 
 	return exec.SysCall("tmux", "attach", "-t="+name)
+}
+
+type SessionInfo struct {
+	Name        string
+	WindowCount int
+	IsAttached  bool
+}
+
+func ListSessions() ([]SessionInfo, error) {
+	cmd := exec.NewCommand("tmux", "list-sessions", "-F", "#{session_name}:#{session_windows}:#{session_attached}")
+
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+
+	lines := strings.Split(strings.Trim(out, "\n"), "\n")
+
+	sessions := []SessionInfo{}
+
+	for _, line := range lines {
+		info := strings.Split(line, ":")
+
+		windowCount, err := strconv.Atoi(info[1])
+		if err != nil {
+			return nil, err
+		}
+
+		sessions = append(sessions, SessionInfo{Name: info[0], WindowCount: windowCount, IsAttached: info[2] == "1"})
+	}
+
+	return sessions, nil
 }

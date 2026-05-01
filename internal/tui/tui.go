@@ -38,6 +38,10 @@ type Item struct {
 	Value string
 }
 
+func (i *Item) IsEmpty() bool {
+	return *i == Item{}
+}
+
 func NewItem(label string, value string) Item {
 	return Item{
 		Label: label,
